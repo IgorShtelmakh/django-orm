@@ -13,7 +13,7 @@
 ШТЕЛЬМАХ ІГОР МИКОЛАЙОВИЧ, к.т.н., асистент кафедри системного аналізу та інформаційних технологій
 
 
-Матерілаи роботи доступні за адресою: https://github.com/IgorShtelmakh/django-orm
+Матеріали роботи доступні за адресою: https://github.com/IgorShtelmakh/django-orm
 
 
 ![Product Admin List](https://github.com/IgorShtelmakh/django-orm/blob/main/images/admin_products.png?raw=true)
@@ -477,6 +477,251 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.sku} - {self.name}"
+```
+
+```python
+# store/models/customer.py
+from django.db import models
+
+
+class Customer(models.Model):
+    """Модель клієнта"""
+    first_name = models.CharField(max_length=64, verbose_name="Ім'я")
+    last_name = models.CharField(max_length=64, verbose_name="Прізвище")
+    email = models.EmailField(max_length=150, unique=True, verbose_name="Email")
+    phone = models.CharField(max_length=32, null=True, blank=True, verbose_name="Телефон")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата реєстрації")
+
+    class Meta:
+        db_table = 'customers'
+        verbose_name = "Клієнт"
+        verbose_name_plural = "Клієнти"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class CustomerAddress(models.Model):
+    """Модель адреси клієнта"""
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name='addresses',
+        verbose_name="Клієнт"
+    )
+    address_line1 = models.CharField(max_length=200, verbose_name="Адреса (рядок 1)")
+    address_line2 = models.CharField(max_length=200, null=True, blank=True, verbose_name="Адреса (рядок 2)")
+    city = models.CharField(max_length=64, verbose_name="Місто")
+    postal_code = models.CharField(max_length=20, verbose_name="Поштовий індекс")
+    country = models.CharField(max_length=64, verbose_name="Країна")
+    is_default = models.BooleanField(default=False, verbose_name="Адреса за замовчуванням")
+
+    class Meta:
+        db_table = 'customer_addresses'
+        verbose_name = "Адреса клієнта"
+        verbose_name_plural = "Адреси клієнтів"
+
+    def __str__(self):
+        return f"{self.address_line1}, {self.city}"
+```
+
+```python
+# store/models/order.py
+from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
+
+class Order(models.Model):
+    """Модель замовлення"""
+    STATUS_CHOICES = [
+        ('pending', 'Очікує обробки'),
+        ('processing', 'В обробці'),
+        ('shipped', 'Відправлено'),
+        ('delivered', 'Доставлено'),
+        ('cancelled', 'Скасовано'),
+    ]
+
+    customer = models.ForeignKey(
+        'Customer',
+        on_delete=models.RESTRICT,
+        related_name='orders',
+        verbose_name="Клієнт"
+    )
+    shipping_address = models.ForeignKey(
+        'CustomerAddress',
+        on_delete=models.RESTRICT,
+        related_name='orders',
+        verbose_name="Адреса доставки"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name="Статус"
+    )
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name="Загальна сума"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата створення")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата оновлення")
+
+    class Meta:
+        db_table = 'orders'
+        verbose_name = "Замовлення"
+        verbose_name_plural = "Замовлення"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Замовлення #{self.id} - {self.customer}"
+
+
+class OrderItem(models.Model):
+    """Модель елемента замовлення"""
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name="Замовлення"
+    )
+    product = models.ForeignKey(
+        'Product',
+        on_delete=models.RESTRICT,
+        related_name='order_items',
+        verbose_name="Товар"
+    )
+    quantity = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name="Кількість"
+    )
+    unit_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name="Ціна за одиницю"
+    )
+    subtotal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name="Підсумок"
+    )
+
+    class Meta:
+        db_table = 'order_items'
+        verbose_name = "Елемент замовлення"
+        verbose_name_plural = "Елементи замовлення"
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity}"
+```
+
+```python
+# store/models/payment.py
+from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
+
+class Payment(models.Model):
+    """Модель платежу"""
+    PAYMENT_METHOD_CHOICES = [
+        ('card', 'Банківська картка'),
+        ('cash', 'Готівка'),
+        ('bank_transfer', 'Банківський переказ'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Очікує'),
+        ('completed', 'Завершено'),
+        ('failed', 'Невдалий'),
+        ('refunded', 'Повернено'),
+    ]
+
+    order = models.OneToOneField(
+        'Order',
+        on_delete=models.RESTRICT,
+        related_name='payment',
+        verbose_name="Замовлення"
+    )
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        verbose_name="Спосіб оплати"
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name="Сума"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name="Статус"
+    )
+    transaction_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name="ID транзакції"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата створення")
+
+    class Meta:
+        db_table = 'payments'
+        verbose_name = "Платіж"
+        verbose_name_plural = "Платежі"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Платіж #{self.id} - {self.order}"
+```
+
+```python
+# store/models/shipment.py
+from django.db import models
+
+
+class Shipment(models.Model):
+    """Модель відправлення"""
+    STATUS_CHOICES = [
+        ('preparing', 'Підготовка'),
+        ('in_transit', 'В дорозі'),
+        ('delivered', 'Доставлено'),
+        ('returned', 'Повернуто'),
+    ]
+
+    order = models.OneToOneField(
+        'Order',
+        on_delete=models.RESTRICT,
+        related_name='shipment',
+        verbose_name="Замовлення"
+    )
+    carrier = models.CharField(max_length=100, verbose_name="Перевізник")
+    tracking_number = models.CharField(max_length=100, verbose_name="Номер відстеження")
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='preparing',
+        verbose_name="Статус"
+    )
+    shipped_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата відправлення")
+    delivered_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата доставки")
+
+    class Meta:
+        db_table = 'shipments'
+        verbose_name = "Відправлення"
+        verbose_name_plural = "Відправлення"
+        ordering = ['-shipped_at']
+
+    def __str__(self):
+        return f"Відправлення #{self.id} - {self.tracking_number}"
 ```
 
 **Крок 5.3:** Імпортуйте всі моделі у `store/models/__init__.py`:
