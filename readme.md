@@ -913,6 +913,17 @@ python manage.py runserver
 
 **Відкрийте браузер за адресою:** `http://127.0.0.1:8000/admin/`
 
+Ви побачите форму фходу
+
+![Admin Login Form](https://github.com/IgorShtelmakh/django-orm/raw/main/images/admin_login_form.png)
+
+Використайте логін та пароль адміністратора, якого ми створили раніше.
+
+![Admin Home Page](https://github.com/IgorShtelmakh/django-orm/blob/main/images/admin_home_page.png?raw=true)
+
+
+
+
 ## 5. Завдання для самостійної роботи
 
 ### Базовий рівень (обов'язково):
