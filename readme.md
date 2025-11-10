@@ -1,12 +1,54 @@
-# Лабораторна робота: Використання можливостей бібліотек ORM для роботи із БД на прикладі Django ORM
+# Використання можливостей бібліотек ORM для роботи із БД на прикладі Django ORM
+
+МЕТОДИЧНІ ВКАЗІВКИ ДЛЯ ВИКОНАННЯ ЛАБОРАТОРНОЇ РОБОТИ ІЗ ДИСЦИПЛІНИ «БАЗИ ДАНИХ ТА ЗНАНЬ»
+
+Рівень вищої освіти: перший (бакалаврський)
+Галузь знань: 12 Інформаційні технології
+Спеціальність: 124 Системний аналіз
+Освітня-професійна програма: Системний аналіз
+ШТЕЛЬМАХ ІГОР МИКОЛАЙОВИЧ, к.т.н., асистент кафедри системного аналізу та інформаційних технологій
+
+
+Матерілаи роботи доступні за адресою: https://github.com/IgorShtelmakh/django-orm
+
 
 ## Мета роботи
 Навчитися працювати з Django ORM для створення та управління базою даних інтернет-магазину, використовуючи моделі Django, міграції, адміністративну панель та seeders для наповнення демонстраційними даними.
 
 ## Теоретичні відомості
 
+### Що таке Django?
+
+**Django** — це високорівневий веб-фреймворк для Python, який дозволяє швидко розробляти безпечні та масштабовані веб-додатки. Django був створений у 2003 році та названий на честь джазового гітариста Джанго Рейнхардта.
+
+**Ключові особливості Django:**
+
+- **Batteries included** (все включено) - Django надає готові рішення для типових завдань веб-розробки
+- **MVT архітектура** (Model-View-Template) - чітке розділення бізнес-логіки, представлення даних та шаблонів
+- **Безпека** - вбудований захист від CSRF, SQL-ін'єкцій, XSS атак
+- **Масштабованість** - використовується великими компаніями (Instagram, Pinterest, NASA)
+- **Адміністративна панель** - автоматично генерований інтерфейс для управління даними
+- **ORM** - потужна система роботи з базами даних
+
+**Популярні проекти на Django:**
+- Instagram - соціальна мережа для обміну фото
+- Spotify - музичний стрімінговий сервіс
+- YouTube - частина інфраструктури
+- Dropbox - хмарне сховище
+
 ### Що таке Django ORM?
-Django ORM (Object-Relational Mapping) - це інструмент, який дозволяє працювати з базою даних використовуючи Python-об'єкти замість SQL-запитів. ORM автоматично перетворює операції з об'єктами в SQL-запити та навпаки.
+
+**Django ORM (Object-Relational Mapping)** - це компонент фреймворку Django, який дозволяє працювати з базою даних використовуючи Python-об'єкти замість SQL-запитів. ORM автоматично перетворює операції з об'єктами в SQL-запити та навпаки.
+
+**Як працює ORM:**
+
+```python
+# Замість SQL: SELECT * FROM products WHERE price > 1000
+products = Product.objects.filter(price__gt=1000)
+
+# Замість SQL: INSERT INTO categories (name) VALUES ('Electronics')
+category = Category.objects.create(name='Electronics')
+```
 
 ### Основні переваги Django ORM:
 - Незалежність від конкретної СУБД
@@ -524,7 +566,84 @@ python manage.py createsuperuser
 # Password: admin
 `
 
-### Крок 8: Написання seeders для наповнення демо-даними
+### Крок 8: Робота з моделями в Django Shell
+
+**Django Shell** — це інтерактивна консоль Python з повним доступом до моделей та функціоналу Django проекту. Це зручний інструмент для швидкого тестування запитів та експериментів з даними.
+
+**Запуск Django Shell:**
+
+```bash
+python manage.py shell
+```
+
+#### Основні операції CRUD (Create, Read, Update, Delete)
+
+**1. Створення записів (Create):**
+
+```python
+from store.models import Category, Product, Supplier
+from decimal import Decimal
+
+# Створення і збереження одразу
+category = Category.objects.create(name='Ноутбуки')
+
+# Створення з подальшим збереженням
+supplier = Supplier(name='TechSupply Ltd', email='info@techsupply.com')
+supplier.save()
+
+# Створення товару з зв'язками
+product = Product.objects.create(
+    sku='LAP001',
+    name='MacBook Pro 14"',
+    category=category,
+    default_supplier=supplier,
+    list_price=Decimal('55999.99')
+)
+```
+
+**2. Читання записів (Read):**
+
+```python
+# Отримати всі записи
+categories = Category.objects.all()
+
+# Отримати один запис за ID
+category = Category.objects.get(id=1)
+
+# Фільтрація записів
+laptops = Product.objects.filter(category__name='Ноутбуки')
+expensive = Product.objects.filter(list_price__gte=30000)
+
+# Підрахунок кількості
+count = Product.objects.count()
+```
+
+**3. Оновлення записів (Update):**
+
+```python
+# Оновлення одного запису
+product = Product.objects.get(sku='LAP001')
+product.list_price = Decimal('52999.99')
+product.save()
+
+# Масове оновлення
+Product.objects.filter(category__name='Ноутбуки').update(
+    list_price=Decimal('45000')
+)
+```
+
+**4. Видалення записів (Delete):**
+
+```python
+# Видалення одного запису
+product = Product.objects.get(id=1)
+product.delete()
+
+# Масове видалення
+Product.objects.filter(list_price__isnull=True).delete()
+```
+
+### Крок 9: Написання seeders для наповнення демо-даними
 
 #### Теоретичні відомості про seeders
 
@@ -646,7 +765,7 @@ class Command(BaseCommand):
 python manage.py seed
 `
 
-### Крок 9: Розробка адміністративної панелі
+### Крок 10: Розробка адміністративної панелі
 
 Відредагуйте файл \`store/admin.py\`:
 
@@ -688,7 +807,7 @@ admin.site.index_title = "Панель управління"
 
 Аналогічно до моделей, адміністративні класи також краще організувати у окремі файли:
 
-**Крок 9.1:** Створіть структуру для admin:
+**Крок 10.1:** Створіть структуру для admin:
 
 ```bash
 # Видаліть файл admin.py
@@ -705,7 +824,7 @@ touch store/admin/customer.py
 touch store/admin/order.py
 ```
 
-**Крок 9.2:** Приклад організації admin класів:
+**Крок 10.2:** Приклад організації admin класів:
 
 ```python
 # store/admin/category.py
@@ -758,7 +877,7 @@ class ProductAdmin(admin.ModelAdmin):
     price_colored.short_description = 'Ціна (кольорова)'
 ```
 
-**Крок 9.3:** Імпортуйте всі admin класи у `store/admin/__init__.py`:
+**Крок 10.3:** Імпортуйте всі admin класи у `store/admin/__init__.py`:
 
 ```python
 # store/admin/__init__.py
@@ -782,7 +901,7 @@ admin.site.index_title = "Панель управління"
 - Зручніше при розробці в команді
 - Можна легко вимкнути певну адмін-панель, закоментувавши імпорт
 
-### Крок 10: Запуск сервера
+### Крок 11: Запуск сервера
 
 `bash
 # Запуск сервера розробки
