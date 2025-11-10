@@ -16,6 +16,8 @@
 Матерілаи роботи доступні за адресою: https://github.com/IgorShtelmakh/django-orm
 
 
+![Product Admin List](https://github.com/IgorShtelmakh/django-orm/blob/main/images/admin_products.png?raw=true)
+
 ## Мета роботи
 Навчитися працювати з Django ORM для створення та управління базою даних інтернет-магазину, використовуючи моделі Django, міграції, адміністративну панель та seeders для наповнення демонстраційними даними.
 
