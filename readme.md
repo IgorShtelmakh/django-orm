@@ -19,9 +19,9 @@
 ## Мета роботи
 Навчитися працювати з Django ORM для створення та управління базою даних інтернет-магазину, використовуючи моделі Django, міграції, адміністративну панель та seeders для наповнення демонстраційними даними.
 
-## Теоретичні відомості
+## 1. Теоретичні відомості
 
-### Що таке Django?
+### 1.1. Що таке Django?
 
 **Django** — це високорівневий веб-фреймворк для Python, який дозволяє швидко розробляти безпечні та масштабовані веб-додатки. Django був створений у 2003 році та названий на честь джазового гітариста Джанго Рейнхардта.
 
@@ -40,7 +40,7 @@
 - YouTube - частина інфраструктури
 - Dropbox - хмарне сховище
 
-### Що таке Django ORM?
+### 1.2. Що таке Django ORM?
 
 **Django ORM (Object-Relational Mapping)** - це компонент фреймворку Django, який дозволяє працювати з базою даних використовуючи Python-об'єкти замість SQL-запитів. ORM автоматично перетворює операції з об'єктами в SQL-запити та навпаки.
 
@@ -54,28 +54,28 @@ products = Product.objects.filter(price__gt=1000)
 category = Category.objects.create(name='Electronics')
 ```
 
-### Основні переваги Django ORM:
+### 1.3. Основні переваги Django ORM:
 - Незалежність від конкретної СУБД
 - Захист від SQL-ін'єкцій
 - Зручний Python-синтаксис
 - Автоматична генерація міграцій
 - Вбудована валідація даних
 
-## Структура БД інтернет-магазину
+## 2. Структура БД інтернет-магазину
 
 База даних складається з наступних таблиць:
 
-### 1. categories - Категорії товарів
+### 2.1. categories - Категорії товарів
 - **id** (INT, PK) - унікальний ідентифікатор категорії
 - **name** (VARCHAR 120) - назва категорії (унікальна)
 
-### 2. suppliers - Постачальники товарів
+### 2.2. suppliers - Постачальники товарів
 - **id** (INT, PK) - унікальний ідентифікатор постачальника
 - **name** (VARCHAR 120) - назва постачальника (унікальна)
 - **phone** (VARCHAR 32, nullable) - контактний телефон
 - **email** (VARCHAR 150, nullable) - електронна пошта
 
-### 3. products - Товари
+### 2.3. products - Товари
 - **id** (INT, PK) - унікальний ідентифікатор товару
 - **sku** (VARCHAR 64) - артикул товару (унікальний)
 - **name** (VARCHAR 160) - назва товару
@@ -83,14 +83,14 @@ category = Category.objects.create(name='Electronics')
 - **default_supplier_id** (INT, FK, nullable) - постачальник за замовчуванням
 - **list_price** (DECIMAL 12,2, nullable) - ціна товару
 
-### 4. customers - Клієнти
+### 2.4. customers - Клієнти
 - **id** (INT, PK) - унікальний ідентифікатор клієнта
 - **first_name** (VARCHAR 64) - ім'я клієнта
 - **last_name** (VARCHAR 64) - прізвище клієнта
 - **email** (VARCHAR 150) - електронна пошта (унікальна)
 - **phone** (VARCHAR 32, nullable) - контактний телефон
 
-### 5. customer_addresses - Адреси клієнтів
+### 2.5. customer_addresses - Адреси клієнтів
 - **id** (INT, PK) - унікальний ідентифікатор адреси
 - **customer_id** (INT, FK) - посилання на клієнта
 - **address_line** (VARCHAR 255) - адреса (вулиця, будинок)
@@ -99,7 +99,7 @@ category = Category.objects.create(name='Electronics')
 - **country** (VARCHAR 64) - країна
 - **is_default** (BOOLEAN) - чи є адреса за замовчуванням
 
-### 6. orders - Замовлення
+### 2.6. orders - Замовлення
 - **id** (INT, PK) - унікальний ідентифікатор замовлення
 - **customer_id** (INT, FK) - посилання на клієнта
 - **order_date** (DATETIME) - дата та час створення замовлення
@@ -107,14 +107,14 @@ category = Category.objects.create(name='Electronics')
 - **shipping_address_id** (INT, FK) - адреса доставки
 - **total_amount** (DECIMAL 12,2) - загальна сума замовлення
 
-### 7. order_items - Позиції замовлення
+### 2.7. order_items - Позиції замовлення
 - **id** (INT, PK) - унікальний ідентифікатор позиції
 - **order_id** (INT, FK) - посилання на замовлення
 - **product_id** (INT, FK) - посилання на товар
 - **quantity** (INT) - кількість товару
 - **unit_price** (DECIMAL 12,2) - ціна за одиницю на момент замовлення
 
-### 8. payments - Платежі
+### 2.8. payments - Платежі
 - **id** (INT, PK) - унікальний ідентифікатор платежу
 - **order_id** (INT, FK) - посилання на замовлення
 - **payment_date** (DATETIME) - дата та час платежу
@@ -122,7 +122,7 @@ category = Category.objects.create(name='Electronics')
 - **payment_method** (VARCHAR 32) - спосіб оплати (card, cash, bank_transfer)
 - **status** (VARCHAR 20) - статус платежу (pending, completed, failed, refunded)
 
-### 9. shipments - Відправлення
+### 2.9. shipments - Відправлення
 - **id** (INT, PK) - унікальний ідентифікатор відправлення
 - **order_id** (INT, FK) - посилання на замовлення
 - **shipment_date** (DATETIME) - дата відправлення
@@ -130,7 +130,7 @@ category = Category.objects.create(name='Electronics')
 - **tracking_number** (VARCHAR 100, nullable) - трекінг-номер відправлення
 - **status** (VARCHAR 20) - статус відправлення (preparing, shipped, in_transit, delivered)
 
-## Рекомендована структура проекту
+## 3. Рекомендована структура проекту
 
 Після завершення всіх кроків, ваш проект матиме наступну структуру:
 
@@ -182,11 +182,11 @@ shop_project/
 - Масштабованість - легко додавати нові моделі/admin класи
 - Менше конфліктів при git merge
 
-## Хід роботи
+## 4. Хід роботи
 
 ### Крок 1: Встановлення Python та створення віртуального середовища
 
-`bash
+```bash
 # Перевірка версії Python (потрібна версія 3.8+)
 python3 --version
 
@@ -201,12 +201,12 @@ python3 -m venv venv
 # Для macOS/Linux:
 source venv/bin/activate
 # Для Windows:
-venv\\Scripts\\activate
-`
+venv\Scripts\activate
+```
 
 ### Крок 2: Встановлення Django
 
-`bash
+```bash
 # Встановлення Django
 pip install django
 
@@ -217,23 +217,23 @@ django-admin --version
 pip install mysqlclient  # для роботи з MySQL
 # або
 pip install psycopg2-binary  # для PostgreSQL
-`
+```
 
 ### Крок 3: Створення Django проекту
 
-`bash
+```bash
 # Створення нового проекту
 django-admin startproject shop .
 
 # Створення додатку для роботи з магазином
 python manage.py startapp store
-`
+```
 
 ### Крок 4: Налаштування проекту
 
-Відредагуйте файл \`shop/settings.py\`:
+Відредагуйте файл `shop/settings.py`:
 
-`python
+```python
 # shop/settings.py
 
 # Додайте додаток до INSTALLED_APPS
@@ -267,7 +267,7 @@ LANGUAGE_CODE = 'uk'
 TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 USE_TZ = True
-`
+```
 
 ### Крок 5: Створення моделей
 
@@ -356,9 +356,9 @@ def __str__(self):
 
 #### Практичне створення моделей
 
-Створіть моделі в файлі \`store/models/[model_name].py\`. Див. приклад нижче для моделі Category:
+Створіть моделі в файлі `store/models/[model_name].py`. Див. приклад нижче для моделі Category:
 
-`python
+```python
 # store/models/category.py
 from django.db import models
 
@@ -375,7 +375,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-`
+```
 
 **Завдання:** Створіть моделі для всіх таблиць:
 - Supplier (постачальники)
@@ -538,7 +538,7 @@ __all__ = [
 
 #### Практичне застосування
 
-`bash
+```bash
 # Створення міграцій на основі моделей
 python manage.py makemigrations
 
@@ -550,7 +550,7 @@ python manage.py migrate
 
 # Перевірка статусу міграцій
 python manage.py showmigrations
-`
+```
 
 **Пояснення команд:**
 - `makemigrations` - аналізує зміни в моделях і створює файли міграцій у директорії `migrations/`
@@ -560,7 +560,7 @@ python manage.py showmigrations
 
 ### Крок 7: Створення суперкористувача
 
-`bash
+```bash
 # Створення адміністратора для доступу до адмін-панелі
 python manage.py createsuperuser
 
@@ -568,7 +568,7 @@ python manage.py createsuperuser
 # Username: admin
 # Email: admin@example.com
 # Password: admin
-`
+```
 
 ### Крок 8: Робота з моделями в Django Shell
 
@@ -726,15 +726,15 @@ address = fake.address()
 
 Створіть директорії та файл для команди:
 
-`bash
+```bash
 mkdir -p store/management/commands
 touch store/management/__init__.py
 touch store/management/commands/__init__.py
-`
+```
 
-Створіть файл \`store/management/commands/seed.py\`:
+Створіть файл `store/management/commands/seed.py`:
 
-`python
+```python
 # store/management/commands/seed.py
 from django.core.management.base import BaseCommand
 from store.models import Category, Supplier, Product, Customer
@@ -752,29 +752,29 @@ class Command(BaseCommand):
             Category(name='Ноутбуки'),
             Category(name='Смартфони'),
             Category(name='Телевізори'),
-            Category(name='Побутов�� техніка'),
+            Category(name='Побутова техніка'),
             Category(name='Аудіотехніка'),
         ]
         Category.objects.bulk_create(categories)
         self.stdout.write(self.style.SUCCESS(f'Створено {len(categories)} категорій'))
 
         # Додайте створення інших даних...
-        
+
         self.stdout.write(self.style.SUCCESS('База даних успішно наповнена!'))
-`
+```
 
 Запуск seeder:
 
-`bash
+```bash
 python manage.py seed
-`
+```
 
 ### Крок 10: Розробка адміністративної панелі
 
-Відредагуйте файл \`store/admin.py\`:
+Відредагуйте файл `store/admin.py`:
 
-`python
-# store/admin.py
+```python
+#store/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, Supplier, Product, Customer
@@ -907,30 +907,28 @@ admin.site.index_title = "Панель управління"
 
 ### Крок 11: Запуск сервера
 
-`bash
-# Запуск сервера розробки
+```bash
 python manage.py runserver
+```
 
-# Відкрийте браузер за адресою:
-# http://127.0.0.1:8000/admin/
-`
+**Відкрийте браузер за адресою:** `http://127.0.0.1:8000/admin/`
 
-## Завдання для самостійної роботи
+## 5. Завдання для самостійної роботи
 
 ### Базовий рівень (обов'язково):
 
-1. **Модифікація моделей:**
-   - Додайте поле \`description\` (опис) до моделі \`Product\`
-   - Додайте поле \`discount\` (знижка у відсотках) до моделі \`Product\`
+**Модифікація моделей:**
+   - Додайте поле `description` (опис) до моделі `Product`
+   - Додайте поле `discount` (знижка у відсотках) до моделі `Product`
    - Створіть та застосуйте міграції
 
-2. **Робота з Django Shell:**
-   `bash
+**Робота з Django Shell:**
+   ```bash
    python manage.py shell
-   `
-   
+   ```
+
    Виконайте наступні запити:
-   `python
+   ```python
    from store.models import *
 
    # Отримати всі категорії
@@ -944,30 +942,30 @@ python manage.py runserver
 
    # Отримати товари дорожче 30000 грн
    Product.objects.filter(list_price__gt=30000)
-   `
+   ```
 
-3. **Розширення адмін-панелі:**
-   - Додайте фільтри для моделі \`Product\` за ціною
+**Розширення адмін-панелі:**
+   - Додайте фільтри для моделі `Product` за ціною
    - Додайте можливість пошуку товарів за категорією
    - Додайте сортування за різними полями
 
 ### Середній рівень:
 
-4. **Складні запити ORM:**
+**Складні запити ORM:**
    - Отримати всі замовлення за останній місяць
    - Знайти найпопулярніший товар (за кількістю замовлень)
    - Розрахувати середній чек замовлення
    - Отримати список клієнтів, які зробили більше 2 замовлень
 
-5. **Створення власних методів моделі:**
-   - Метод \`get_orders_total()\` для моделі \`Customer\`
-   - Метод \`is_in_stock()\` для моделі \`Product\`
-   - Метод \`get_unpaid_amount()\` для моделі \`Order\`
+**Створення власних методів моделі:**
+   - Метод `get_orders_total()` для моделі `Customer`
+   - Метод `is_in_stock()` для моделі `Product`
+   - Метод `get_unpaid_amount()` для моделі `Order`
 
 ### Високий рівень:
 
-6. **Агрегація та анотація:**
-   `python
+**Агрегація та анотація:**
+   ```python
    from django.db.models import Count, Sum, Avg
 
    # Товари з кількістю замовлень
@@ -975,13 +973,13 @@ python manage.py runserver
 
    # Клієнти з загальною сумою покупок
    Customer.objects.annotate(total_spent=Sum('orders__items__unit_price'))
-   `
+   ```
 
-7. **Оптимізація запитів:**
-   - Використайте \`select_related()\` для оптимізації запитів з ForeignKey
-   - Використайте \`prefetch_related()\` для оптимізації запитів
+**Оптимізація запитів:**
+   - Використайте `select_related()` для оптимізації запитів з ForeignKey
+   - Використайте `prefetch_related()` для оптимізації запитів
 
-## Контрольні питання
+## 6. Контрольні питання
 
 1. Що таке ORM і які його переваги перед прямими SQL-запитами?
 2. Яка різниця між методами \`filter()\` та \`get()\` в Django ORM?
@@ -994,7 +992,7 @@ python manage.py runserver
 9. Що таке \`InlineModelAdmin\` і коли його використовувати?
 10. Як оптимізувати запити в Django ORM?
 
-## Корисні посилання
+## 7. Корисні посилання
 
 - [Офіційна документація Django](https://docs.djangoproject.com/)
 - [Django ORM QuerySet API](https://docs.djangoproject.com/en/stable/ref/models/querysets/)
@@ -1002,7 +1000,7 @@ python manage.py runserver
 - [Django Admin](https://docs.djangoproject.com/en/stable/ref/contrib/admin/)
 - [Django Migrations](https://docs.djangoproject.com/en/stable/topics/migrations/)
 
-## Висновки
+## 8. Висновки
 
 В ході виконання лабораторної роботи студенти навчилися:
 - Встановлювати та налаштовувати Django проект
