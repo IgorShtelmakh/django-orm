@@ -31,6 +31,7 @@ class Product(models.Model):
         verbose_name="Ціна"
     )
     description = models.TextField(null=True, blank=True, verbose_name="Опис")
+    specifications = models.TextField(null=True, blank=True, verbose_name="Характеристики")
     discount = models.DecimalField(
         max_digits=5,
         decimal_places=2,
